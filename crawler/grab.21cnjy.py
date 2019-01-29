@@ -34,19 +34,33 @@ def get_lessons(volume_url):
         # print(text_url)
         text_r = requests.get(text_url)
         text_soup = BeautifulSoup(text_r.content, "html.parser", from_encoding='gbk')
-        article = text_soup.find(class_='article').get_text()
+        print('stripped_strings' in dir(text_soup))
+        print('stripped_strings' in dir(text_soup.find(class_='article')))
+        print('stripped_strings' in dir(text_soup.find(class_='article').get_text))
+        lines = text_soup.find(class_='article').stripped_strings
+        lines = []
+        for line in text_soup.find(class_='article').stripped_strings:
+            lines.append(line)
+        text = "\n".join(lines)
+
+        # text = text_soup.find(class_='article').get_text()
         # print(type(article), dir(article))
         # article.replace('<br/>', '')
         # article.replace(r'\n', '\n')
-        #article.replace(r'\u3000', u' ')
+        # article.replace(r'\u3000', u' ')
         # article.replace(u'\xa0', u'').encode('utf-8')
         # article = "".join(article.split())
         print('================')
-        print(text_url)
-        print(article)
-        lessons[title] = article
-        f = open(title, 'w')
-        f.write(article)
+        print(text)
+        # print(text_url)
+        # print(article)
+        # text.replace()
+        # text.replace(u'\xa0', u' ').strip().encode('utf-8')
+        # text.replace(u'\u3000', u' ').strip().encode('utf-8')
+        lessons[title] = text
+        # pprint(lessons)
+        f = open('./tmp/%s' % title, 'w')
+        f.write(text)
         f.close()
     # print(lessons)
     return lessons
@@ -67,7 +81,7 @@ def fill_version_detail(url, fill_map):
         href = a.get('href').strip()
         text = a.text.strip()
         url = host + href
-        print(href, text)
+        # print(href, text)
         # print(href.split('/'))
         if href.split('/')[-2] == '0':
             parent = text
@@ -88,18 +102,9 @@ def main():
     # print(soup.prettify())
     kNav = soup.find(id="kNav")
     # print(kNav)
-    '''
-    print('\n'*2)
-    print(type(kNav), dir(kNav))
-    print('\n'*2)
-    print(kNav.contents)
-    print('\n'*2)
-    print(kNav.children)
-    for child in kNav.children:
-        print(child)
-    '''
     for x in kNav.find_all('a'):
-        print(x)
+        # print(x.text)
+        pass
     subList = soup.find(id="subList")
     # print(subList)
     # print(type(subList), dir(subList))
@@ -115,16 +120,15 @@ def main():
             if i==1:
                 continue
             # print(version.text)
-            print(version)
+            # print(version)
             href = version.get('href').strip()
             url = host + href
             fill_version_detail(url, version_detail_map)
-            if i == 2:
+            if i == 3:
                 break
         break
     # pprint(version_detail_map)
 
-     
 
 if __name__ == '__main__':
     main()
