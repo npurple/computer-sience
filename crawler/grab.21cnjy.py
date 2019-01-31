@@ -1,4 +1,5 @@
 # coding=utf8
+import os
 import time
 from bs4 import BeautifulSoup
 import requests
@@ -22,6 +23,32 @@ class Yuwen(Base):
     volume = Column(String(32))
     title = Column(String(32))
     text = Column(Text)
+
+
+export_dir = '/Users/mz/lab/study/crawler/yuwen'
+def export():
+    for obj in db_sessioin.query(Yuwen).order_by(Yuwen.id): 
+        # print(obj)
+        # print(obj.grade, obj.version, obj.volume, obj.title, obj.text)
+        path = '/'.join([export_dir, obj.grade, obj.version, obj.volume])
+        try:
+            os.makedirs(path)
+        except FileExistsError as fee:
+            print(fee)
+        except Exception as e:
+            print(e)
+            continue
+        if not obj.title:
+            continue
+        doc = '/'.join([path, obj.title])
+        print(doc)
+        try:
+            with open(doc, 'w') as f:
+                f.write(obj.text)
+        except Exception as e:
+            print(e)
+            continue
+
 
 
 host = "https://www.21cnjy.com"
@@ -50,9 +77,6 @@ def lessons_degree(volume_url, grade, version, volume):
 
         db_sessioin.add(obj)
 
-        # f = open('./tmp/%s' % title, 'w')
-        # f.write(text)
-        # f.close()
     db_sessioin.commit()
 
 
@@ -80,19 +104,13 @@ def main():
     versions_of_grade = subList.find_all(class_='filter-col')
     for grade, versions in zip(grades, versions_of_grade):
         # print('*-'*10)
-        i = 0
         for version in versions.find_all('a'):
-            i+=1
-            if i==1:
-                continue
             # print(i, grade.text, version.text)
+            # continue
             href = version.get('href').strip()
             url = host + href
             volume_degree(url, grade.text, version.text)
             # print(lessons)
-            # if i == 2:
-            #     break
-        # break
 
 
 def create_table():
@@ -100,8 +118,9 @@ def create_table():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
     # create_table()
+    export()
     '''
     with open('/tmp/sleep.txt', 'w+') as f:
         i = 0
