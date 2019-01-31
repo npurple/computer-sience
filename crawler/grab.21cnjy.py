@@ -121,16 +121,3 @@ if __name__ == '__main__':
     # main()
     # create_table()
     export()
-    '''
-    with open('/tmp/sleep.txt', 'w+') as f:
-        i = 0
-        while 1:
-            cnt = "%s\n" % i
-            print(cnt)
-            f.write(cnt)
-            i += 1
-            time.sleep(2)
-            if i == 50:
-                break
-    '''
-
