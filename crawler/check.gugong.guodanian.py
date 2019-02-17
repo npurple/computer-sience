@@ -19,8 +19,8 @@ headers = {
         "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
         "Accept-Encoding": "gzip, deflate",
-        "Origin": "https://gugong.228.com.cn",
-        "Referer": "https://gugong.228.com.cn/ImmersionDigitalExperienceExhibition/SelectPrice",
+        # "Origin": "https://gugong.228.com.cn",
+        # "Referer": "https://gugong.228.com.cn/ImmersionDigitalExperienceExhibition/SelectPrice",
         "Cookie": "ASP.NET_SessionId=uxunxxbi4d4sqg4day4eeoti; NTKF_T2D_CLIENTID=guestA23B2910-6133-169A-42D4-AC11E1EED3A3; MyCook=UserName=18618364050; YSMyCookie=ylsid=uxunxxbi4d4sqg4day4eeoti; nTalk_CACHE_DATA={uid:kf_9209_ISME9754_guestA23B2910-6133-16,tid:1549941719237558}; Hm_lvt_03aa38430f8c7b8e004251a9f67c2183=1549075080,1549262391,1549262564,1549941719; Hm_lpvt_03aa38430f8c7b8e004251a9f67c2183=1549941773",
         "X-Requested-With": "XMLHttpRequest",
     }
@@ -47,6 +47,7 @@ def http_post(host, api, headers, data, port=None, timeout=28):
     else:
         url = "%s/%s" % (host, api)
     response = requests.post(url, data, headers=headers, timeout=timeout)
+    print(response)
     return response.json()
 
 def tickets_of_shangyuanye(dst_date):
@@ -75,7 +76,10 @@ def tickets_of_shangyuanye(dst_date):
     """
     date_str = dst_date.strftime('%Y-%m-%d')
     payload = {'date': date_str}
-    resp = http_post(host, yuanxiao_api, headers, payload)
+    try:
+        resp = http_post(host, yuanxiao_api, headers, payload)
+    except:
+        return
     time_ranges = resp['Result']
     for period in time_ranges:
         sid = period['SId']
@@ -91,7 +95,10 @@ def tickets_of_shangyuanye(dst_date):
 def tickets_of_guodanian(date):
     date_str = date.strftime('%Y-%m-%d')
     payload = {'date': date_str}
-    resp = http_post(host, guodanian_api, headers, payload)
+    try:
+        resp = http_post(host, guodanian_api, headers, payload)
+    except:
+        return
     range_count = 0
     current_remain = 0
     for t in resp['Result']:
@@ -109,7 +116,7 @@ def tickets_of_guodanian(date):
 
 def remind(msg):
     sender = mail_cfg.mail_from
-    receivers = ['mz1985@163.com']
+    receivers = ['mz1985@163.com', 'caomeng8668@163.com']
     # 三个参数：第一个为文本内容，第二个 plain 设置文本格式，第三个 utf-8 设置编码
     message = MIMEText(msg, 'plain', 'utf-8')
     message['From'] = mail_cfg.mail_from
