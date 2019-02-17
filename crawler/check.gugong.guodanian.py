@@ -34,7 +34,7 @@ def plus_date_from(from_date, days):
     return from_date + datetime.timedelta(days)
 
 
-def http_post(host, api, headers, data, port=None, timeout=10):
+def http_post(host, api, headers, data, port=None, timeout=28):
     """
     :param api: /login
     :param headers: headers
@@ -49,7 +49,7 @@ def http_post(host, api, headers, data, port=None, timeout=10):
     response = requests.post(url, data, headers=headers, timeout=timeout)
     return response.json()
 
-def tickets_of_shangyuanye(date):
+def tickets_of_shangyuanye(dst_date):
     """
         “紫禁城上元之夜”
         在2019己亥年元宵节来临之际故宫博物院将于2019年2月19日(正月十五)、20日（正月十六）举办“紫禁城上元之夜”文化活动。活动地点主要安排在故宫博物院的午门展厅、太和门广场、故宫东城墙、神武门等区域，此活动最后经神武门退场。观众朋友需通过故宫博物院票务系统预约此项活动，免费参加，名额有限，约满为止。故宫预约实行实名制，所有观众需录入身份证或护照信息方可预定。预约成功的观众从午门凭身份证安检入场。网上预约信息仅限本人使用，不得转借于他人，参观时请务必携带好身份证件。
@@ -73,7 +73,7 @@ def tickets_of_shangyuanye(date):
             10、请配合入院安检。食品、液体、火源、易燃、易爆、自拍杆等物品，以及一切危害公共安全的违禁物品禁止带入。上元之夜不具备存包条件，大型行李箱包（宽40cm，高30cm以上）谢绝入内。
             11、请爱护宫内设备和设施，勿用力拍打宫内设施，勿用尖锐物品刻画墙面，勿将宫内任何物品带出。
     """
-    date_str = date.strftime('%Y-%m-%d')
+    date_str = dst_date.strftime('%Y-%m-%d')
     payload = {'date': date_str}
     resp = http_post(host, yuanxiao_api, headers, payload)
     time_ranges = resp['Result']
@@ -82,10 +82,11 @@ def tickets_of_shangyuanye(date):
         if int(sid) == 5237:  # 19:30入场
             print(period)
             remain = period['TotalRemain']
+            name = period['Name']
             print(remain)
             if int(remain) <= 800:
-                remind('快去故宫官网抢票（上元夜）网址：https://gugong.228.com.cn/ShangyuanNight/SelectPrice')
-
+                remind('(%s)故宫上元夜活动（%s）余票还有(%s)张，赶快去官网抢票（上元夜）网址：https://gugong.228.com.cn/ShangyuanNight/SelectPrice'
+                       % (date_str, name, remain))
 
 def tickets_of_guodanian(date):
     date_str = date.strftime('%Y-%m-%d')
@@ -130,7 +131,11 @@ def run_forever():
         # 故宫过大年
         for i in range(2, 5):
             dst = plus_date(i)
-            tickets_of_guodanian(dst)
+            try:
+                tickets_of_guodanian(dst)
+            except Exception as e:
+                print(e)
+                continue
 
         # 上元夜
         dst = datetime.datetime(2019, 2, 20)
